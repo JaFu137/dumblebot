@@ -1,9 +1,17 @@
 const { prefix } = require('../config.js');
 
+keys = ["thank", "Thank"]
+
 module.exports = (bot, message) => {
 
     if(message.channel.dm == "dm") return;
     if(message.author.bot) return;  // Dont respond to bots and dm
+
+    keys.forEach(key => {if(message.content.includes(key)){
+        let command = bot.commands.get("points");
+        command.run(bot, message, [10, "to", message.mentions.user, true]);
+        return;
+    }});
 
     // Check for prefix, define args and commands
     if(!message.content.startsWith(prefix)) return;
@@ -21,7 +29,7 @@ module.exports = (bot, message) => {
     let command;
     let commandfile = bot.commands.get(cmd.slice(prefix.length));
     if(commandfile) commandfile.run(bot, message, args);
-
+    
     // Run commands
     if(bot.commands.has(cmd)) {
         command = bot.commands.get(cmd);
