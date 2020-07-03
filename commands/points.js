@@ -1,8 +1,11 @@
-const fs = require("fs");
-const points = require("../points.json");
+const mongoose = require("mongoose");
+const points = require("../models/points_model.js");
 
 module.exports.run = async (bot, message, args) => {
-    
+
+    if(!message.member.hasPermission('KICK_MEMBERS')) {
+        return message.reply("You have no power here!");
+    }
     if(!message.mentions.users.size) {
         return message.channel.send("Who are these points for bruv?");
     } else {
@@ -11,13 +14,11 @@ module.exports.run = async (bot, message, args) => {
 
     let mult; 
     let change = 0;
-
     if(args[1] === "from") {
         mult =  -1;
     }else { 
         mult = 1;
     }
-
     if(/^\d+$/.test(args[0])) {
         change = parseInt(args[0]);    
     }
@@ -37,35 +38,31 @@ module.exports.run = async (bot, message, args) => {
         }else {
             return message.channel.send(`${member.user.username} needs to face the sorting hat`);
         }
-        if(!points[house]) {
-            points[house] = {
 
+        points.findOne({
+            'Id': user.id
+        }, (err, data) => {
+            if(err) console.log(err);
+            if(!data) {
+                const newUser = new points({
+                    Id: user.id, 
+                    Name: user.tag,
+                    Points: mult*change,
+                    House: house,
+                })
+                newUser.save().catch(err => console.log(err));
+                return message.channel.send(`${user.tag} has ${mult*change} points for ${house}.`);
+            }else {
+                data.Points += mult*change;
+                data.save().catch(err => console.log(err));
+                return message.channel.send(`${user.tag} has ${data.Points} points for ${house}.`);
             }
-        }
-        points_ = points[house];
+        })
 
-        //return message.channel.send(`${user.username}`);
-        if(!points_[user.id]) {
-            //Innit new user in database
-            points_[user.id] = {
-                name: user.tag,
-                points: mult*change               
-            }
-        
-            fs.writeFile("./points.json", JSON.stringify(points), (err) => {
-                if(err) console.log(err);
-            });
-        }else {
-            points_[user.id].points += mult*change
-            
-            fs.writeFile("./points.json", JSON.stringify(points), (err) => {
-                if(err) console.log(err);
-            })
-        }
-        message.channel.send(`${user.tag} has ${points_[user.id].points} points for ${house}.`)
     })
     
 }
+
 
 module.exports.help = {
     name: "points",
