@@ -6,7 +6,11 @@ const points = require("../models/points_model.js");
 
 module.exports.run = async (bot, message, args) => {
 
-    
+    const res = points.find({
+        House : "Hufflepuff"
+    })
+
+    console.log(res)
 
     let Houses = await points.aggregate([
         { $match : {}},
@@ -64,6 +68,6 @@ module.exports.run = async (bot, message, args) => {
 }
 
 module.exports.help = {
-    name: "Leaderboard",
+    name: "leaderboard",
     aliases: ["lb"]
 }

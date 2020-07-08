@@ -3,8 +3,6 @@ const points = require("../models/points_model.js");
 
 module.exports.run = async (bot, message, args) => {
 
-    console.log(message);
-
     if(!message.member.hasPermission('KICK_MEMBERS') && !args[3]) {
         return message.reply("You have no power here!");
     }
@@ -27,7 +25,7 @@ module.exports.run = async (bot, message, args) => {
 
     users.forEach((user) => {
 
-        if(message.author.id === user.id && args[3]) return;
+        if(message.author.id === user.id && args[3] == true) return;
         let member = message.guild.member(user)
         /// Check the house group
         if(member.roles.cache.some(r => r.name === "Gryffindor")){

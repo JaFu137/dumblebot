@@ -13,6 +13,12 @@ module.exports = (bot, message) => {
         return;
     }});
 
+    if(message.content.toLocaleLowerCase().includes("spicy")){
+        let command = bot.commands.get("spicy");
+        command.run(bot, message);
+        return;
+    }
+
     // Check for prefix, define args and commands
     if(!message.content.startsWith(prefix)) return;
     let args = message.content.slice(prefix.length).trim().split(/ +/g);
@@ -27,8 +33,6 @@ module.exports = (bot, message) => {
     }
 
     let command;
-    let commandfile = bot.commands.get(cmd.slice(prefix.length));
-    if(commandfile) commandfile.run(bot, message, args);
     
     // Run commands
     if(bot.commands.has(cmd)) {
