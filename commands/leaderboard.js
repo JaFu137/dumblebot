@@ -6,12 +6,63 @@ const points = require("../models/points_model.js");
 
 module.exports.run = async (bot, message, args) => {
 
-    const res = points.find({
-        House : "Hufflepuff"
-    })
+    let embed = new Discord.MessageEmbed();
+    embed.setTitle(`Leaderboard`);
 
-    console.log(res)
+    const array = await lb_array();
+    let num;
 
+    if(!args[0]){
+        num = 3;
+    }else if(args[0].toLocaleLowerCase() === "all"){
+        num = 100;
+    }else{
+        num = parseInt(args[0]);
+    }
+
+    for (var i=0; i<4; i++){
+        var str = "";
+        var end = num;
+        if(array[i].people.length <= end) {
+            end = array[i].people.length;
+        }
+        for (var j=0; j<end; j++){
+            str = str.concat(`${array[i].people[j].Name}:   ${array[i].people[j].Points} \n`);
+        }
+        embed.addField(`${array[i].House}:  ${array[i].Total}`, str);
+    }
+
+    message.channel.send(embed);
+}
+
+module.exports.help = {
+    name: "leaderboard",
+    aliases: ["lb"],
+    hidden: false,
+    usage: "d! leaderboard",
+    description: "Show the points leaderboard."
+}
+
+async function lb_array() {
+    var array = [];
+    const Houses = await getHouseorder();
+    //console.log(Houses);
+
+    for(var i = 0; i < 4; i++){
+        //console.log(Houses[i].House);
+        array.push({
+            House: Houses[i].House,
+            Total: Houses[i].Points,
+            people: []
+        })
+        const data = await getUserOrder(Houses[i].House);
+        array[i].people = array[i].people.concat(data)
+        //console.log(data);
+    }
+    return array;
+}
+
+async function getHouseorder(){
     let Houses = await points.aggregate([
         { $match : {}},
         { $group: {
@@ -21,53 +72,15 @@ module.exports.run = async (bot, message, args) => {
             }
         }},
         { $project: {House: '$_id', _id: 0, Points: '$total'}},
-        {$sort: {Points: -1}}
+        {$sort: {Points: -1}}, 
     ])
-    
-    Houses.forEach((item) => {
-        console.log(item);
-
-        points.find({
-            'House': item.House
-        }).sort([
-            ['Points', 'descending']
-        ]).exec((err, result) =>{
-            if(err) console.log(err);
-    
-            var page = Math.ceil(result.length / 10);
-            let embed = new Discord.MessageEmbed();
-            embed.setTitle(`${item.House}, ${item.Points}`);
-    
-            let pg = parseInt(args[0]);
-            if(pg != Math.floor(pg)) pg = 1;
-            if(!pg) pg = 1;
-            let end = pg*10;
-            let start = (pg*10) - 10;
-    
-            if(result.length === 0) {
-                embed.addField("Error");
-            }else if(result.length <= start) {
-                embed.addField("Error");
-            }else if(result.length <= end) {
-                embed.setFooter(`Page ${pg} of ${page}`);
-                for(i = start; i< result.length; i++) {
-                    embed.addField(`${i+1}. ${result[i].Name}`, `${result[i].Points.toLocaleString()}`);
-                }
-            }else {
-                embed.setFooter(`Page ${pg} of ${page}`);
-                for(i = start; i< end; i++) {
-                    embed.addField(`${i+1}. ${result[i].Name}`, `${result[i].Points.toLocaleString()}`);
-                }
-            }
-            
-            message.channel.send(embed);
-    
-        })
-
-    })
+    return Houses
 }
 
-module.exports.help = {
-    name: "leaderboard",
-    aliases: ["lb"]
+async function getUserOrder(house){
+    const result = await points.aggregate([
+        {$match : { 'House' : house}},
+        {$sort: {Points: -1}}
+    ])
+    return result;
 }

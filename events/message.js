@@ -39,6 +39,8 @@ module.exports = (bot, message) => {
         command = bot.commands.get(cmd);
     }else if (bot.aliases.has(cmd)) {
         command = bot.commands.get(bot.aliases.get(cmd));
+    }else {
+        return message.channel.send("That's not a command fam. Use d! help for list of commands");
     }
     try {
         command.run(bot, message, args);

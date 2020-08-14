@@ -25,7 +25,16 @@ module.exports.run = async (bot, message, args) => {
 
     users.forEach((user) => {
 
-        if(message.author.id === user.id && args[3] == true) return;
+        if(message.author.id === user.id && change > 0 && mult > 0){
+            message.channel.send(`Oi, ${message.author.username}, stop trying to give yourself points you degenerate!! Shame!!`);
+            message.channel.send({embed: { 
+                color: 16777215, 
+                image:  {
+                    url: "https://media.giphy.com/media/vX9WcCiWwUF7G/giphy.gif"
+                }
+            }});
+            return;
+        }
         let member = message.guild.member(user)
         /// Check the house group
         if(member.roles.cache.some(r => r.name === "Gryffindor")){
@@ -40,6 +49,11 @@ module.exports.run = async (bot, message, args) => {
             return message.channel.send(`${member.user.username} needs to face the sorting hat`);
         }
 
+        var name =  member.nickname;
+        if(!name){
+            name = user.tag;
+        }
+
         points.findOne({
             'Id': user.id
         }, (err, data) => {
@@ -47,16 +61,16 @@ module.exports.run = async (bot, message, args) => {
             if(!data) {
                 const newUser = new points({
                     Id: user.id, 
-                    Name: user.tag,
+                    Name: name,
                     Points: mult*change,
                     House: house,
                 })
                 newUser.save().catch(err => console.log(err));
-                return message.channel.send(`${user.tag} has ${mult*change} points for ${house}.`);
+                return message.channel.send(`${name} has ${mult*change} points for ${house}.`);
             }else {
                 data.Points += mult*change;
                 data.save().catch(err => console.log(err));
-                return message.channel.send(`${user.tag} has ${data.Points} points for ${house}.`);
+                return message.channel.send(`${name} has ${data.Points} points for ${house}.`);
             }
         })
 
@@ -67,5 +81,8 @@ module.exports.run = async (bot, message, args) => {
 
 module.exports.help = {
     name: "points",
-    aliases: ["pts"]
+    aliases: ["point", "pts", "pt"],
+    hidden: false,
+    usage: "d! # points [to/from] @user. Leave # blank to check points.",
+    description: "Gives or take points to the user. The word points can be replaced with any of aliases."
 }
