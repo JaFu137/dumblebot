@@ -23,11 +23,11 @@ fs.readdir("./commands/", async (err, files) => {
 });
 
 // Read Events
-fs.readdir('./Events/', (err, files) => {
+fs.readdir('./events/', (err, files) => {
     if(err) console.log(err);
     files.forEach(file => {
         if(!file.endsWith('.js')) return;
-        let evt = require(`./Events/${file}`);
+        let evt = require(`./events/${file}`);
         let evtName = evt.help.name;
         let evtType = evt.help.type
         console.log(`${evtName} loaded!`);

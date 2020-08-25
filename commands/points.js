@@ -1,16 +1,67 @@
 const mongoose = require("mongoose");
+const Discord = require("discord.js");
 const points = require("../models/points_model.js");
+const { DiscordAPIError } = require("discord.js");
 
 module.exports.run = async (bot, message, args) => {
 
     if(!message.member.hasPermission('KICK_MEMBERS') && !args[3]) {
         return message.reply("You have no power here!");
-    }
+    }    
     if(!message.mentions.users.size) {
-        return message.channel.send("Who are these points for bruv?");
+        message.reply("Who are these points for bruv?");
+        const filter = m => m.author.id === message.author.id;
+        const collector = new Discord.MessageCollector(message.channel, filter, { max: 1});
+        //console.log(collector);
+        collector.on('collect', m => {
+            console.log(m);
+            if(m.mentions.users.size != 0){
+                collector.stop();
+                var users = m.mentions.users;
+                return changePoints(users, message, args);
+
+            }
+        })
+
     } else {
         var users = message.mentions.users;
+        return changePoints(users, message, args);
     }
+    
+}
+
+
+module.exports.help = {
+    name: "points",
+    aliases: ["point", "pts", "pt"],
+    hidden: false,
+    usage: "d! # points [to/from] @user. Leave # blank to check points.",
+    description: "Gives or take points to the user. The word points can be replaced with any of aliases."
+}
+
+async function getUsers(message){
+
+    if(!message.mentions.users.size) {
+            
+        message.reply("Who are these points for bruv?");
+        const filter = m => m.author.id === message.author.id;
+        const collector = new Discord.MessageCollector(message.channel, filter, { max: 1});
+        //console.log(collector);
+        collector.on('collect', m => {
+            console.log(m);
+            if(m.mentions.users.size != 0){
+                collector.stop();
+                return m.mentions.users;
+
+            }
+        })
+
+    } else {
+        return message.mentions.users;
+    }
+}
+
+async function changePoints(users, message, args){
 
     let mult; 
     let change = 0;
@@ -22,6 +73,8 @@ module.exports.run = async (bot, message, args) => {
     if(/^\d+$/.test(args[0])) {
         change = parseInt(args[0]);    
     }
+
+    
 
     users.forEach((user) => {
 
@@ -75,14 +128,4 @@ module.exports.run = async (bot, message, args) => {
         })
 
     })
-    
-}
-
-
-module.exports.help = {
-    name: "points",
-    aliases: ["point", "pts", "pt"],
-    hidden: false,
-    usage: "d! # points [to/from] @user. Leave # blank to check points.",
-    description: "Gives or take points to the user. The word points can be replaced with any of aliases."
 }

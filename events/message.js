@@ -1,13 +1,13 @@
 const { prefix } = require('../config.js');
 
-keys = ["thank", "Thank"]
+keys = ["thank"]
 
 module.exports = (bot, message) => {
 
     if(message.channel.dm == "dm") return;
     if(message.author.bot) return;  // Dont respond to bots and dm
 
-    keys.forEach(key => {if(message.content.includes(key)){
+    keys.forEach(key => {if(message.content.toLocaleLowerCase().includes(key) && message.mentions.users.size != 0){
         let command = bot.commands.get("points");
         command.run(bot, message, [10, "to", message.mentions.user, true]);
         return;
