@@ -1,6 +1,7 @@
 const { prefix } = require('../config.js');
 
 keys = ["thank"]
+keys2 = ["spicy", "lovely", "delightful" , "bwoi", "rub"]
 
 module.exports = (bot, message) => {
 
@@ -12,12 +13,12 @@ module.exports = (bot, message) => {
         command.run(bot, message, [10, "to", message.mentions.user, true]);
         return;
     }});
-
-    if(message.content.toLocaleLowerCase().includes("spicy")){
-        let command = bot.commands.get("spicy");
+    
+    keys2.forEach(key => {if(message.content.toLocaleLowerCase().includes(key)){
+        let command = bot.commands.get(key);
         command.run(bot, message);
         return;
-    }
+    }});
 
     // Check for prefix, define args and commands
     if(!message.content.startsWith(prefix)) return;
