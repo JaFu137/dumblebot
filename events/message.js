@@ -1,7 +1,7 @@
 const { prefix } = require('../config.js');
 
 keys = ["thank"]
-keys2 = ["spicy", "lovely", "delightful" , "bwoi", "rub"]
+keys2 = ["spicy", "lovely", "delightful" , "bwoi", "rub", "honk", "spooky", "tort", "bonk"]
 
 module.exports = (bot, message) => {
 

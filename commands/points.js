@@ -14,7 +14,7 @@ module.exports.run = async (bot, message, args) => {
         const collector = new Discord.MessageCollector(message.channel, filter, { max: 1});
         //console.log(collector);
         collector.on('collect', m => {
-            console.log(m);
+            //console.log(m);
             if(m.mentions.users.size != 0){
                 collector.stop();
                 var users = m.mentions.users;

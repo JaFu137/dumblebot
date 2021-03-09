@@ -29,6 +29,7 @@ module.exports.run = async (bot, message, args) => {
         for (var j=0; j<end; j++){
             str = str.concat(`${array[i].people[j].Name}:   ${array[i].people[j].Points} \n`);
         }
+        str = str.concat('\u200B');
         embed.addField(`${array[i].House}:  ${array[i].Total}`, str);
     }
 

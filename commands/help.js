@@ -20,7 +20,6 @@ module.exports.run = async (bot, message, args) => {
             }
         });
     }
-    embed.addField(`Goodluck finding the secret commands!`, '\u200b')
     message.channel.send(embed);
 
 }
